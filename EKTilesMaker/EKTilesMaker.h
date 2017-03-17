@@ -10,8 +10,8 @@
 
 typedef NS_ENUM(NSInteger, OutputFileType)
 {
-    OutputFileTypePNG,
-    OutputFileTypeJPG
+   OutputFileTypePNG,
+   OutputFileTypeJPG
 };
 
 /**
@@ -19,10 +19,12 @@ typedef NS_ENUM(NSInteger, OutputFileType)
  */
 @interface EKTilesMaker : NSObject
 
-- (void)createTiles:(UIImage*)originalImage tiles:(void(^)(NSArray<UIImage*>*))tiles;
+- (void)createTiles:(UIImage*)originalImage
+               cols:(int)cols
+               rows:(int)rows
+               size:(CGSize)size
+              tiles:(void(^)(NSArray<UIImage*>*,CGRect tileRect))tiles;
 
-/// The size of output tiles images
-@property (nonatomic) CGSize tileSize;
 
 /**
  Image type of tiles. Provide OutputfileTypePNG for storing tiles in png format or

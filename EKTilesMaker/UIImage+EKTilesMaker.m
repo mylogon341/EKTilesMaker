@@ -35,12 +35,14 @@
 
 - (UIImage *)imageInRect:(CGRect)rect
 {
-    CGImageRef croppedCGImage = CGImageCreateWithImageInRect([self CGImage], rect);
-    UIImage *croppedUIImage = [UIImage imageWithCGImage:croppedCGImage];
-    
-    CGImageRelease(croppedCGImage);
-    
-    return croppedUIImage;
+   @autoreleasepool {
+      CGImageRef croppedCGImage = CGImageCreateWithImageInRect([self CGImage], rect);
+      UIImage *croppedUIImage = [UIImage imageWithCGImage:croppedCGImage];
+      
+      CGImageRelease(croppedCGImage);
+      
+      return croppedUIImage;      
+   }
 }
 
 @end

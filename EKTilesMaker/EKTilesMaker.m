@@ -21,52 +21,51 @@
 
 - (id)init
 {
-    if (self = [super init]) {
-        [self setOutputFileType:OutputFileTypePNG];
-        
-        [self setQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
-        [self setGroup:dispatch_group_create()];
-    }
-    return self;
+   if (self = [super init]) {
+      [self setOutputFileType:OutputFileTypePNG];
+      
+      [self setQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+      [self setGroup:dispatch_group_create()];
+   }
+   return self;
 }
 
 #pragma mark - public
 
-- (void)createTiles:(UIImage *)sourceImage tiles:(void (^)(NSArray<UIImage *> *))tiles
-{
-    NSAssert(self.tileSize.width > 0 && self.tileSize.height > 0, @"Invalid tile size was specified");
+- (void)createTiles:(UIImage *)sourceImage cols:(int)cols rows:(int)rows size:(CGSize)size tiles:(void (^)(NSArray<UIImage *> *, CGRect))tilesCallback{
+   __block NSMutableArray <UIImage*>* images = [NSMutableArray new];
    
-   NSMutableArray <UIImage*>* images = [NSMutableArray new];
+   //calculate zoom that aspect fits grid size
+   float heightRatio = size.height/sourceImage.size.height;
+   float widthRatio = size.width/sourceImage.size.width;
+   float scaleRatio = sourceImage.size.height > sourceImage.size.width ? heightRatio : widthRatio;
    
-    dispatch_async(self.queue, ^{
-        
-       NSUInteger column = 0;
-       CGFloat offsetX = 0;
-       
-       while (offsetX < sourceImage.size.width) {
-          NSUInteger row = 0;
-          NSUInteger offsetY = 0;
-          
-          while (offsetY < sourceImage.size.height) {
-             CGRect tileFrame = CGRectMake(offsetX, offsetY, self.tileSize.width, self.tileSize.height);
-             
-             UIImage *tileImage = [sourceImage imageInRect:tileFrame];
-             [images addObject:tileImage];
+   dispatch_async(self.queue, ^{
       
-             row += 1;
-             offsetY += self.tileSize.height;
-          }
-          
-          column += 1;
-          offsetX += self.tileSize.width;
-       }
-       
-       [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-          tiles(images.copy);
-       }];
-       
-       dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
-    });
+      float tWidth = sourceImage.size.width/cols;
+      float tHeight = sourceImage.size.height/rows;
+
+      CGRect tileRect = CGRectMake(0, 0,
+                                   floor(scaleRatio * tWidth),
+                                   floor(scaleRatio * tHeight));
+      
+      for (int r=0; r<rows; r++) {
+         for (int c =0; c<cols; c++) {
+            
+            CGRect tileFrame = CGRectMake(tWidth * c, tHeight * r, tWidth, tHeight);
+            UIImage *tileImage = [sourceImage imageInRect:tileFrame];
+            [images addObject:tileImage];
+         }
+      }
+      
+      [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+         tilesCallback(images.copy,tileRect);
+         images = nil;
+      }];
+      
+      dispatch_group_wait(self.group, DISPATCH_TIME_FOREVER);
+   });
+   
 }
 
 @end
