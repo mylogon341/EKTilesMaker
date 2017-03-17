@@ -1,0 +1,23 @@
+{
+  "name": "EKTilesMaker",
+  "version": "0.9.2",
+  "summary": "A simple Jigsaw puzzle game.",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": "Krzysztof Kuc",
+  "homepage": "https://github.com/mylogon341/EKTilesMaker",
+  "platforms": {
+    "ios": null
+  },
+  "source": {
+    "git": "https://github.com/mylogon341/EKTilesMaker.git",
+    "tag": "0.9.1"
+  },
+  "source_files": [
+    "EKTilesMaker",
+    "EKTilesMaker/**/*.{h,m}",
+    "UIImage+EKTilesMaker/**/*.{h,m}"
+  ]
+}
